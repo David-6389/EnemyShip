@@ -1,27 +1,23 @@
 import pygame
 import random
 import math
-
-ANCHO = 1080
-ALTO = 720
-ROJO = (255, 0 ,0)
-VERDE = (0, 255 ,0)
+import config as cf
 
 
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self, jugador, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict):
         super().__init__()
         self.image = pygame.Surface((50, 50))
-        self.image.fill(ROJO)
+        self.image.fill(cf.ROJO)
         self.rect = self.image.get_rect()
         self.jugador = jugador
-        self.vidas = 30 #! Vidas ENEMIGO
+        self.vidas = 30  #! Vidas ENEMIGO
         self.vidas_max = 30
         self.velocidad = 2
         self.cooldown = 0
         self.proyectiles_disparados = 0
         self.sigue_jugador = False
-        self.rect.x = random.randint(0, ANCHO - self.rect.width)
+        self.rect.x = random.randint(0, cf.ANCHO - self.rect.width)
         self.rect.y = random.randint(-self.rect.height, 0)
 
         self.todos_los_sprites = todos_los_sprites_grupo
@@ -34,47 +30,42 @@ class Enemigo(pygame.sprite.Sprite):
         distancia = (dx ** 2 + dy ** 2) ** 0.5
 
         if distancia != 0:
-            # velocidad = 2
             self.rect.x += self.velocidad * dx / distancia
             self.rect.y += self.velocidad * dy / distancia
 
-         # Mantener al enemigo dentro de los límites de la pantalla
-        self.rect.x = max(0, min(self.rect.x, ANCHO - self.rect.width))
-        self.rect.y = max(0, min(self.rect.y, ALTO - self.rect.height))
-
+        # Mantener al enemigo dentro de los límites de la pantalla
+        self.rect.x = max(0, min(self.rect.x, cf.ANCHO - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, cf.ALTO - self.rect.height))
 
         # Disparar al jugador
         if distancia < 200 and self.cooldown == 0:
-            # Calcular la dirección del proyectil
             if distancia != 0:
                 direccion_x = dx / distancia
                 direccion_y = dy / distancia
             else:
                 direccion_x, direccion_y = 0, 0
 
-             # Decidir si el proyectil sigue al jugador
-            if self.proyectiles_disparados % 7 == 0: # Cada 7 disparos un Disparo especial
-                proyectil = ProyectilEnemigo(self.rect.center, dx / distancia, dy / distancia, self.jugador, self.recursos, sigue_jugador = True)
+            # Decidir si el proyectil sigue al jugador
+            if self.proyectiles_disparados % 7 == 0:  # Cada 7 disparos un Disparo especial
+                proyectil = ProyectilEnemigo(self.rect.center, dx / distancia, dy / distancia, self.jugador, self.recursos, sigue_jugador=True)
             else:
-                proyectil = ProyectilEnemigo(self.rect.center, direccion_x, direccion_y, self.jugador, self.recursos, sigue_jugador = False)
-            
+                proyectil = ProyectilEnemigo(self.rect.center, direccion_x, direccion_y, self.jugador, self.recursos, sigue_jugador=False)
+
             self.todos_los_sprites.add(proyectil)
             self.proyectiles_enemigos.add(proyectil)
             self.proyectiles_disparados += 1
             self.cooldown = 60  # Configurar el tiempo de enfriamiento
 
-         # Reducir el tiempo de enfriamiento
         if self.cooldown > 0:
             self.cooldown -= 1
 
     def dibujar_vidas(self, pantalla):
         CUBO_VIDA_ENEMY = 10
         espacio_entre_cubos = 0
-        x = ANCHO - 10 - ((self.vidas * (CUBO_VIDA_ENEMY + espacio_entre_cubos)))
+        x = cf.ANCHO - 10 - ((self.vidas * (CUBO_VIDA_ENEMY + espacio_entre_cubos)))
         y = 10
-        # Dibujar un cubo por cada vida restante del jugador
         for _ in range(self.vidas):
-            pygame.draw.rect(pantalla, ROJO, (x, y, CUBO_VIDA_ENEMY, CUBO_VIDA_ENEMY))
+            pygame.draw.rect(pantalla, cf.ROJO, (x, y, CUBO_VIDA_ENEMY, CUBO_VIDA_ENEMY))
             x += CUBO_VIDA_ENEMY + espacio_entre_cubos
 
     def perder_vida(self, danio=1):
@@ -86,10 +77,11 @@ class Enemigo(pygame.sprite.Sprite):
             return True
         return False
 
+
 class EnemigoBase(pygame.sprite.Sprite):
     def __init__(self, jugador, vida, velocidad, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict):
         super().__init__()
-        self.image = pygame.Surface((50, 50)) # Imagen base
+        self.image = pygame.Surface((50, 50))  # Imagen base
         self.rect = self.image.get_rect()
 
         self.jugador = jugador
@@ -97,24 +89,29 @@ class EnemigoBase(pygame.sprite.Sprite):
         self.vidas_max = vida
         self.velocidad = velocidad
 
-        self.rect.x = random.randint(0, ANCHO - self.rect.width)
+        # Valor por defecto: subclases que suben hasta una altura fija
+        # (EnemigoTorreta, EnemigoHealer, EnemigoBoss_1) lo sobreescriben.
+        # Evita AttributeError si alguna subclase futura no lo define
+        # y usa el update() heredado de esta clase base.
+        self.y_objetivo = 0
+
+        self.rect.x = random.randint(0, cf.ANCHO - self.rect.width)
         self.rect.y = random.randint(-100, -50)
-        #self.rect.y = 100
 
         self.todos_los_sprites = todos_los_sprites_grupo
         self.proyectiles_enemigos = proyectiles_enemigos_grupo
         self.recursos = recursos_dict
 
     def mantener_en_pantalla(self):
-        self.rect.x = max(0, min(self.rect.x, ANCHO - self.rect.width))
-        self.rect.y = max(0, min(self.rect.y, ALTO - self.rect.height))
+        self.rect.x = max(0, min(self.rect.x, cf.ANCHO - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, cf.ALTO - self.rect.height))
 
     def matar_si_sale_de_pantalla(self, margen=100):
         if (
             self.rect.right < -margen or
-            self.rect.left > ANCHO + margen or
+            self.rect.left > cf.ANCHO + margen or
             self.rect.bottom < -margen or
-            self.rect.top > ALTO + margen
+            self.rect.top > cf.ALTO + margen
         ):
             self.kill()
 
@@ -126,16 +123,6 @@ class EnemigoBase(pygame.sprite.Sprite):
         self.rect.center = centro_anterior
 
     def update(self):
-        # Lógica de movimiento y ataque por defecto (puede ser sobreescrita)
-        self.rect.y += self.velocidad
-        if self.rect.top > ALTO:
-            self.kill()
-        # Cada enemigo tendrá su propia lógica de movimiento y ataque
-        pass
-
-    def update(self):
-        print("UPDATE TORRETA:", self.rect.x, self.rect.y, "objetivo:", self.y_objetivo)
-
         if self.rect.y < self.y_objetivo:
             self.rect.y += self.velocidad
         else:
@@ -145,20 +132,19 @@ class EnemigoBase(pygame.sprite.Sprite):
     def dibujar_vidas(self, pantalla):
         CUBO_VIDA_ENEMY = 10
         espacio_entre_cubos = 0
-        x = ANCHO - 10 - ((self.vidas * (CUBO_VIDA_ENEMY + espacio_entre_cubos)))
+        x = cf.ANCHO - 10 - ((self.vidas * (CUBO_VIDA_ENEMY + espacio_entre_cubos)))
         y = 10
-        # Dibujar un cubo por cada vida restante del enemigo
         for _ in range(self.vidas):
-            pygame.draw.rect(pantalla, ROJO, (x, y, CUBO_VIDA_ENEMY, CUBO_VIDA_ENEMY))
+            pygame.draw.rect(pantalla, cf.ROJO, (x, y, CUBO_VIDA_ENEMY, CUBO_VIDA_ENEMY))
             x += CUBO_VIDA_ENEMY + espacio_entre_cubos
 
     def perder_vida(self, danio=1):
         self.vidas -= danio
         if self.vidas <= 0:
-            # Lógica al morir (soltar puntos, explotar, etc.)
             self.kill()
-            return True # Murió
-        return False # Sigue vivo
+            return True  # Murió
+        return False  # Sigue vivo
+
 
 # Enemigo que se lanza a embestir
 class EnemigoKamikaze(EnemigoBase):
@@ -192,8 +178,9 @@ class EnemigoKamikaze(EnemigoBase):
         self.pos += self.direccion * self.velocidad
         self.rect.center = self.pos
 
-        if not pygame.Rect(-150, -150, ANCHO + 300, ALTO + 300).colliderect(self.rect):
+        if not pygame.Rect(-150, -150, cf.ANCHO + 300, cf.ALTO + 300).colliderect(self.rect):
             self.kill()
+
 
 # Enemigo que dispara ráfagas desde lejos
 class EnemigoTorreta(EnemigoBase):
@@ -249,7 +236,7 @@ class EnemigoTorreta(EnemigoBase):
             self.disparar_radial()
 
     def disparar_radial(self):
-        cantidad_balas = self.cantidad_balas 
+        cantidad_balas = self.cantidad_balas
 
         for i in range(cantidad_balas):
             angulo = (2 * math.pi / cantidad_balas) * i + self.angulo_disparo
@@ -270,7 +257,7 @@ class EnemigoTorreta(EnemigoBase):
             self.proyectiles_enemigos.add(proyectil)
 
         self.angulo_disparo += 0.25
-    
+
     def disparar_al_jugador(self):
         dx = self.jugador.rect.centerx - self.rect.centerx
         dy = self.jugador.rect.centery - self.rect.centery
@@ -297,7 +284,7 @@ class EnemigoSniper(EnemigoBase):
     def __init__(self, jugador, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict):
         super().__init__(jugador, 20, 1, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict)
 
-        self.cambiar_imagen(20, 25,(100, 0, 200))
+        self.cambiar_imagen(20, 25, (100, 0, 200))
 
         self.cooldown_disparo = 300
         self.cooldown = self.cooldown_disparo
@@ -307,64 +294,58 @@ class EnemigoSniper(EnemigoBase):
         margen = 40
         if lado == "izquierda":
             self.rect.left = -10
-            self.rect.y = random.randint(50, ALTO - 50)
+            self.rect.y = random.randint(50, cf.ALTO - 50)
 
         elif lado == "derecha":
-            self.rect.right = ANCHO + 10
-            self.rect.y = random.randint(50, ALTO - 50)
+            self.rect.right = cf.ANCHO + 10
+            self.rect.y = random.randint(50, cf.ALTO - 50)
 
         elif lado == "arriba":
-            self.rect.x = random.randint(50, ANCHO - 50)
+            self.rect.x = random.randint(50, cf.ANCHO - 50)
             self.rect.top = -10
 
         else:
-            self.rect.x = random.randint(50, ANCHO - 50)
-            self.rect.bottom = ALTO + 10
+            self.rect.x = random.randint(50, cf.ANCHO - 50)
+            self.rect.bottom = cf.ALTO + 10
         self.objetivo = self.rect.copy()
 
         if lado == "izquierda":
             self.objetivo.x = margen
 
         elif lado == "derecha":
-            self.objetivo.x = ANCHO - margen - self.rect.width
+            self.objetivo.x = cf.ANCHO - margen - self.rect.width
 
         elif lado == "arriba":
             self.objetivo.y = margen
 
         else:
-            self.objetivo.y = ALTO - margen - self.rect.height
+            self.objetivo.y = cf.ALTO - margen - self.rect.height
 
     def update(self):
-
         if self.rect.center != self.objetivo.center:
-
             dx = self.objetivo.centerx - self.rect.centerx
             dy = self.objetivo.centery - self.rect.centery
 
             distancia = math.hypot(dx, dy)
 
             if distancia > self.velocidad:
-
                 self.rect.x += int(self.velocidad * dx / distancia)
                 self.rect.y += int(self.velocidad * dy / distancia)
-
             else:
                 self.rect.center = self.objetivo.center
-
         else:
             self.atacar()
 
     def atacar(self):
         if self.cooldown > 0:
-           self.cooldown -= 1
-           return
+            self.cooldown -= 1
+            return
 
         self.disparo_sniper()
 
         self.cooldown = self.cooldown_disparo
-    
-    def disparo_sniper(self):
 
+    def disparo_sniper(self):
         dx = self.jugador.rect.centerx - self.rect.centerx
         dy = self.jugador.rect.centery - self.rect.centery
 
@@ -380,11 +361,12 @@ class EnemigoSniper(EnemigoBase):
             self.jugador,
             self.recursos,
             sigue_jugador=False,
-            velocidad=self.velocidad_disparo   # <- bala del sniper
+            velocidad=self.velocidad_disparo  # bala del sniper
         )
 
         self.todos_los_sprites.add(proyectil)
         self.proyectiles_enemigos.add(proyectil)
+
 
 # Enemigo que cura a sus aliados, evita al jugador
 class EnemigoHealer(EnemigoBase):
@@ -463,15 +445,15 @@ class EnemigoHealer(EnemigoBase):
 
 
 class ProyectilEnemigo(pygame.sprite.Sprite):
-    def __init__(self, posicion, direccion_x, direccion_y, jugador_obj, recursos_dict, sigue_jugador = False, velocidad = 4):
+    def __init__(self, posicion, direccion_x, direccion_y, jugador_obj, recursos_dict, sigue_jugador=False, velocidad=4):
         super().__init__()
         if sigue_jugador:
             self.image = pygame.Surface((9, 9))
-            self.image.fill(VERDE)
-            self.velocidad = velocidad - 2 # Velocidad más lenta
+            self.image.fill(cf.VERDE)
+            self.velocidad = velocidad - 2  # Velocidad más lenta
         else:
             self.image = pygame.Surface((5, 5))
-            self.image.fill(ROJO)
+            self.image.fill(cf.ROJO)
             self.velocidad = velocidad  # Velocidad normal
         self.rect = self.image.get_rect()
         self.rect.center = posicion
@@ -483,7 +465,6 @@ class ProyectilEnemigo(pygame.sprite.Sprite):
         self.sound_played_esp = False
         self.sound_played = False
 
-        
     def update(self):
         if self.sigue_jugador:
             # Si el proyectil sigue al jugador, actualizar su dirección
@@ -491,7 +472,7 @@ class ProyectilEnemigo(pygame.sprite.Sprite):
             dy = self.jugador.rect.centery - self.rect.centery
             distancia = math.sqrt(dx ** 2 + dy ** 2)
             if not self.sound_played_esp:
-                self.recursos['sound']['Proyectil_especial_Enemy'].play() #* --> sound disparo Especial
+                self.recursos['sound']['Proyectil_especial_Enemy'].play()
                 self.sound_played_esp = True
                 self.sound_played = False
             if distancia != 0:
@@ -499,22 +480,22 @@ class ProyectilEnemigo(pygame.sprite.Sprite):
                 self.direccion_y = dy / distancia
         else:
             if not self.sound_played and not self.sound_played_esp:
-                self.recursos['sound']['sound_disp_Enemigo'].play() #* --> sound disparo Normal
+                self.recursos['sound']['sound_disp_Enemigo'].play()
                 self.sound_played = True
-        # else:
-            # print("NO ESTA DENTRO DE PROYECTIL SEGUIDOR")
+
         self.rect.x += self.velocidad * self.direccion_x
         self.rect.y += self.velocidad * self.direccion_y
 
-        if not pygame.Rect(0, 0, ANCHO, ALTO).colliderect(self.rect):
+        if not pygame.Rect(0, 0, cf.ANCHO, cf.ALTO).colliderect(self.rect):
             self.kill()
+
 
 class EnemigoBoss_1(EnemigoBase):
     def __init__(self, jugador, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict, grupo_enemigos):
         super().__init__(jugador, 150, 1.5, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict)
 
         self.cambiar_imagen(100, 100, (255, 215, 0))  # dorado
-        self.rect.centerx = ANCHO // 2
+        self.rect.centerx = cf.ANCHO // 2
         self.rect.y = -120
 
         self.grupo_enemigos = grupo_enemigos
@@ -585,7 +566,7 @@ class EnemigoBoss_1(EnemigoBase):
 
     def patrullar(self):
         self.rect.x += self.velocidad_patrulla * self.direccion_patrulla
-        if self.rect.left <= 20 or self.rect.right >= ANCHO - 20:
+        if self.rect.left <= 20 or self.rect.right >= cf.ANCHO - 20:
             self.direccion_patrulla *= -1
 
     def atacar(self):
@@ -661,7 +642,7 @@ class EnemigoBoss_1(EnemigoBase):
     def dibujar_vidas(self, pantalla):
         ancho_barra = 400
         alto_barra = 20
-        x = ANCHO // 2 - ancho_barra // 2
+        x = cf.ANCHO // 2 - ancho_barra // 2
         y = 20
         ratio = max(0, self.vidas / self.vidas_max)
 
