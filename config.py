@@ -5,10 +5,11 @@ pygame.init()
 # ============================================================
 #  PANTALLA
 # ============================================================
-ANCHO = 1080
-ALTO = 720
-PANTALLA = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Nave Invasora")
+info = pygame.display.Info()
+ANCHO = info.current_w
+ALTO = info.current_h
+PANTALLA = pygame.display.set_mode((ANCHO, ALTO), pygame.FULLSCREEN)
+pygame.display.set_caption("Enemy Ship")
 
 # ============================================================
 #  COLORES

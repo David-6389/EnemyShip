@@ -2,333 +2,136 @@ from enemigos import Enemigo, EnemigoKamikaze, EnemigoTorreta, EnemigoSniper, En
 
 
 NIVELES = [
-        {
-            "nombre": "Nivel 1 - Patrulla inicial",
-            "olas": [
-                {
-                "enemigos": [
-                    {
-                        "tipo": "basico",
-                        "cantidad": 1,
-                        "vida": 1,
-                        "xp": 22,
-                        "velocidad": 2,
-                        "cooldown": 80,
-                        "rafaga": 1,
-                        "cooldown_rafaga": 15,
-                        "balas_radiales": 6
-                    },
-                    {
-                    "tipo": "healer",
-                    "cantidad": 1,
-                    "vida": 10,
-                    "xp": 2000
-                    },  
-                ]},
-                {
-                "tipo": "healer",
-                "cantidad": 1,
-                "vida": 8,
-                "xp": 30
-                },  
-                {
-                    "tipo": "sniper",
-                    "cantidad": 3,
-                    "vida": 2,
-                    "xp": 12,
-                    "seguimiento": 0.01,
-                    "cooldown": 200
-                },
-                {
-                    "tipo": "basico",
-                    "cantidad": 3,
-                    "vida": 6,
-                    "xp": 10,
-                    "velocidad": 1.0,
-                    "cooldown": 140,
-                    "rafaga": 1,
-                    "cooldown_rafaga": 25,
-                    "balas_radiales": 3
-                },
-                {
-                    "tipo": "kamikaze",
-                    "cantidad": 3,
-                    "vida": 2,
-                    "xp": 12,
-                    "velocidad": 2.4,
-                    "seguimiento": 0.015
-                },
-                {
-                    "tipo": "sniper",
-                    "cantidad": 1,
-                    "vida": 2,
-                    "xp": 12,
-                    "seguimiento": 0.01,
-                    "cooldown": 200
-                },
-                {
-                    "tipo": "torreta",
-                    "cantidad": 1,
-                    "vida": 10,
-                    "xp": 25,
-                    "velocidad": 0.8,
-                    "cooldown": 130,
-                    "rafaga": 1,
-                    "cooldown_rafaga": 25,
-                    "balas_radiales": 5
-                },
-            ]
-        },
-
-        {
-            "nombre": "Nivel 2 - Presion enemiga",
-            "olas": [
-                {
-                    "tipo": "basico",
-                    "cantidad": 4,
-                    "vida": 8,
-                    "xp": 12,
-                    "velocidad": 1.2,
-                    "cooldown": 120,
-                    "rafaga": 1,
-                    "cooldown_rafaga": 22,
-                    "balas_radiales": 4
-                },
-                {
-                    "tipo": "torreta",
-                    "cantidad": 2,
-                    "vida": 12,
-                    "xp": 30,
-                    "velocidad": 1.0,
-                    "cooldown": 115,
-                    "rafaga": 1,
-                    "cooldown_rafaga": 22,
-                    "balas_radiales": 6
-                },
-                {
-                    "tipo": "kamikaze",
-                    "cantidad": 4,
-                    "vida": 3,
-                    "xp": 16,
-                    "velocidad": 2.9,
-                    "seguimiento": 0.025
-                },
-            ]
-        },
-
-        {
-            "nombre": "Nivel 3 - Zona hostil",
-            "olas": [
-                {
-                    "tipo": "torreta",
-                    "cantidad": 2,
-                    "vida": 14,
-                    "xp": 40,
-                    "velocidad": 1.2,
-                    "cooldown": 100,
-                    "rafaga": 2,
-                    "cooldown_rafaga": 20,
-                    "balas_radiales": 7
-                },
-                {
-                    "tipo": "kamikaze",
-                    "cantidad": 5,
-                    "vida": 3,
-                    "xp": 20,
-                    "velocidad": 3.2,
-                    "seguimiento": 0.035
-                },
-                {
-                    "tipo": "basico",
-                    "cantidad": 5,
-                    "vida": 10,
-                    "xp": 18,
-                    "velocidad": 1.5,
-                    "cooldown": 100,
-                    "rafaga": 1,
-                    "cooldown_rafaga": 18,
-                    "balas_radiales": 5
-                },
-            ]
-        },
-
-        {
-        "nombre": "Nivel 4 - Ataque coordinado",
+    {
+        "nombre": "Nivel 1 - Contacto Inicial",
         "olas": [
             {
+                # Ola 1: Presentación suave, pocos enemigos, muy débiles.
                 "enemigos": [
-                    {
-                        "tipo": "basico",
-                        "cantidad": 4,
-                        "vida": 11,
-                        "xp": 18,
-                        "velocidad": 1.6,
-                        "cooldown": 95,
-                        "rafaga": 1,
-                        "cooldown_rafaga": 18,
-                        "balas_radiales": 5
-                    },
-                    {
-                        "tipo": "kamikaze",
-                        "cantidad": 3,
-                        "vida": 4,
-                        "xp": 22,
-                        "velocidad": 3.4,
-                        "seguimiento": 0.04
-                    }
+                    {"tipo": "basico", "cantidad": 3, "vida": 3, "xp": 15, "velocidad": 1.0, "cooldown": 140}
                 ]
             },
             {
+                # Ola 2: Más enemigos básicos, un poco más rápidos.
                 "enemigos": [
-                    {
-                        "tipo": "torreta",
-                        "cantidad": 2,
-                        "vida": 17,
-                        "xp": 45,
-                        "velocidad": 1.3,
-                        "cooldown": 85,
-                        "rafaga": 2,
-                        "cooldown_rafaga": 16,
-                        "balas_radiales": 8
-                    },
-                    {
-                        "tipo": "kamikaze",
-                        "cantidad": 4,
-                        "vida": 4,
-                        "xp": 22,
-                        "velocidad": 3.7,
-                        "seguimiento": 0.045
-                    }
+                    {"tipo": "basico", "cantidad": 5, "vida": 4, "xp": 15, "velocidad": 1.3, "cooldown": 120}
                 ]
             },
             {
+                # Ola 3: Introducción del Kamikaze (enseña al jugador a moverse).
                 "enemigos": [
-                    {
-                        "tipo": "basico",
-                        "cantidad": 4,
-                        "vida": 13,
-                        "xp": 20,
-                        "velocidad": 1.8,
-                        "cooldown": 85,
-                        "rafaga": 1,
-                        "cooldown_rafaga": 16,
-                        "balas_radiales": 6
-                    },
-                    {
-                        "tipo": "torreta",
-                        "cantidad": 2,
-                        "vida": 19,
-                        "xp": 50,
-                        "velocidad": 1.5,
-                        "cooldown": 75,
-                        "rafaga": 3,
-                        "cooldown_rafaga": 15,
-                        "balas_radiales": 10
-                    },
-                    {
-                        "tipo": "kamikaze",
-                        "cantidad": 3,
-                        "vida": 4,
-                        "xp": 24,
-                        "velocidad": 3.8,
-                        "seguimiento": 0.05
-                    }
+                    {"tipo": "basico", "cantidad": 2, "vida": 4, "xp": 15, "velocidad": 1.2},
+                    {"tipo": "kamikaze", "cantidad": 2, "vida": 2, "xp": 20, "velocidad": 2.2, "seguimiento": 0.015}
                 ]
             }
         ]
     },
+
     {
-        "nombre": "Nivel 5 - Ultima defensa",
+        "nombre": "Nivel 2 - Artilleria Pesada",
         "olas": [
             {
+                # Ola 1: Introducción de la Torreta (balas radiales).
                 "enemigos": [
-                    {
-                        "tipo": "basico",
-                        "cantidad": 5,
-                        "vida": 14,
-                        "xp": 22,
-                        "velocidad": 1.9,
-                        "cooldown": 80,
-                        "rafaga": 1,
-                        "cooldown_rafaga": 15,
-                        "balas_radiales": 6
-                    },
-                    {
-                        "tipo": "torreta",
-                        "cantidad": 1,
-                        "vida": 20,
-                        "xp": 55,
-                        "velocidad": 1.5,
-                        "cooldown": 70,
-                        "rafaga": 2,
-                        "cooldown_rafaga": 14,
-                        "balas_radiales": 10
-                    }
+                    {"tipo": "torreta", "cantidad": 1, "vida": 12, "xp": 40, "velocidad": 1.0, "cooldown": 120, "balas_radiales": 6},
+                    {"tipo": "basico", "cantidad": 3, "vida": 5, "xp": 15, "velocidad": 1.4}
                 ]
             },
             {
+                # Ola 2: Enjambre de Kamikazes.
                 "enemigos": [
-                    {
-                        "tipo": "kamikaze",
-                        "cantidad": 7,
-                        "vida": 5,
-                        "xp": 25,
-                        "velocidad": 4.0,
-                        "seguimiento": 0.06
-                    },
-                    {
-                        "tipo": "torreta",
-                        "cantidad": 2,
-                        "vida": 21,
-                        "xp": 55,
-                        "velocidad": 1.6,
-                        "cooldown": 65,
-                        "rafaga": 3,
-                        "cooldown_rafaga": 13,
-                        "balas_radiales": 11
-                    }
+                    {"tipo": "kamikaze", "cantidad": 5, "vida": 3, "xp": 20, "velocidad": 2.6, "seguimiento": 0.02}
                 ]
             },
             {
+                # Ola 3: Mezcla de Torretas y Kamikazes (presión a distancia y cuerpo a cuerpo).
                 "enemigos": [
-                    {
-                        "tipo": "basico",
-                        "cantidad": 5,
-                        "vida": 16,
-                        "xp": 25,
-                        "velocidad": 2.0,
-                        "cooldown": 70,
-                        "rafaga": 1,
-                        "cooldown_rafaga": 14,
-                        "balas_radiales": 7
-                    },
-                    {
-                        "tipo": "kamikaze",
-                        "cantidad": 6,
-                        "vida": 5,
-                        "xp": 28,
-                        "velocidad": 4.2,
-                        "seguimiento": 0.065
-                    },
-                    {
-                        "tipo": "torreta",
-                        "cantidad": 3,
-                        "vida": 24,
-                        "xp": 60,
-                        "velocidad": 1.8,
-                        "cooldown": 55,
-                        "rafaga": 3,
-                        "cooldown_rafaga": 12,
-                        "balas_radiales": 12
-                    }
+                    {"tipo": "torreta", "cantidad": 2, "vida": 12, "xp": 40, "velocidad": 1.0, "cooldown": 110, "balas_radiales": 6},
+                    {"tipo": "kamikaze", "cantidad": 3, "vida": 3, "xp": 20, "velocidad": 2.5, "seguimiento": 0.02}
+                ]
+            }
+        ]
+    },
+
+    {
+        "nombre": "Nivel 3 - Tácticas Enemigas",
+        "olas": [
+            {
+                # Ola 1: Introducción del Healer. El jugador DEBE priorizarlo.
+                "enemigos": [
+                    {"tipo": "healer", "cantidad": 1, "vida": 10, "xp": 50, "velocidad": 1.5},
+                    {"tipo": "torreta", "cantidad": 2, "vida": 14, "xp": 40, "cooldown": 100}
                 ]
             },
-            { # Boss final
-                "tipo": "jefe",
-                "cantidad": 1,
-                "vida": 150,
-                "xp": 500
+            {
+                # Ola 2: Introducción del Sniper (ataque certero).
+                "enemigos": [
+                    {"tipo": "sniper", "cantidad": 2, "vida": 6, "xp": 45, "velocidad": 1.0, "cooldown": 200},
+                    {"tipo": "kamikaze", "cantidad": 4, "vida": 4, "xp": 22, "velocidad": 2.8, "seguimiento": 0.03}
+                ]
             },
+            {
+                # Ola 3: Sinergia total de mecánicas especiales.
+                "enemigos": [
+                    {"tipo": "healer", "cantidad": 1, "vida": 12, "xp": 50},
+                    {"tipo": "sniper", "cantidad": 1, "vida": 8, "xp": 45, "cooldown": 180},
+                    {"tipo": "basico", "cantidad": 4, "vida": 6, "xp": 20, "velocidad": 1.6}
+                ]
+            }
+        ]
+    },
+
+    {
+        "nombre": "Nivel 4 - El Asedio",
+        "olas": [
+            {
+                # Ola 1: Presión fuerte desde todos los frentes.
+                "enemigos": [
+                    {"tipo": "torreta", "cantidad": 3, "vida": 15, "xp": 45, "cooldown": 90, "rafaga": 2, "balas_radiales": 8},
+                    {"tipo": "kamikaze", "cantidad": 4, "vida": 5, "xp": 25, "velocidad": 3.2, "seguimiento": 0.04}
+                ]
+            },
+            {
+                # Ola 2: Enemigos muy resistentes curándose entre sí.
+                "enemigos": [
+                    {"tipo": "healer", "cantidad": 2, "vida": 12, "xp": 60, "velocidad": 1.6},
+                    {"tipo": "basico", "cantidad": 5, "vida": 12, "xp": 25, "velocidad": 1.8, "cooldown": 90, "rafaga": 2}
+                ]
+            },
+            {
+                # Ola 3: Caos en pantalla. El jugador necesitará usar Dash y Escudo.
+                "enemigos": [
+                    {"tipo": "sniper", "cantidad": 2, "vida": 10, "xp": 50, "cooldown": 160},
+                    {"tipo": "torreta", "cantidad": 2, "vida": 18, "xp": 50, "cooldown": 80, "rafaga": 3},
+                    {"tipo": "kamikaze", "cantidad": 4, "vida": 5, "xp": 25, "velocidad": 3.5, "seguimiento": 0.045}
+                ]
+            }
+        ]
+    },
+
+    {
+        "nombre": "Nivel 5 - La Guardia Final",
+        "olas": [
+            {
+                # Ola 1: Enjambre brutal de Kamikazes rápidos.
+                "enemigos": [
+                    {"tipo": "kamikaze", "cantidad": 8, "vida": 6, "xp": 30, "velocidad": 4.0, "seguimiento": 0.06}
+                ]
+            },
+            {
+                # Ola 2: La última línea de defensa antes del jefe.
+                "enemigos": [
+                    {"tipo": "healer", "cantidad": 2, "vida": 15, "xp": 70},
+                    {"tipo": "torreta", "cantidad": 3, "vida": 25, "xp": 65, "cooldown": 70, "rafaga": 3, "balas_radiales": 10},
+                    {"tipo": "sniper", "cantidad": 2, "vida": 12, "xp": 60, "cooldown": 150}
+                ]
+            },
+            {
+                # Ola 3: El JEFE.
+                "enemigos": [
+                    {"tipo": "jefe", "cantidad": 1, "vida": 150, "xp": 1000}
+                ]
+            }
         ]
     }
 ]

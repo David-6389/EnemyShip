@@ -368,81 +368,105 @@ class EnemigoSniper(EnemigoBase):
         self.proyectiles_enemigos.add(proyectil)
 
 
-# Enemigo que cura a sus aliados, evita al jugador
+# Enemigo que cura a sus aliados, ahora de forma ACTIVA (médico de combate)
 class EnemigoHealer(EnemigoBase):
     def __init__(self, jugador, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict, grupo_enemigos):
-        super().__init__(jugador, 8, 1.5, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict)
+        # Aumentamos la velocidad de 1.5 a 3.0 para que sea bastante más rápido
+        super().__init__(jugador, 8, 3.0, todos_los_sprites_grupo, proyectiles_enemigos_grupo, recursos_dict)
 
         self.cambiar_imagen(35, 35, (0, 255, 150))  # verde curación
 
         self.grupo_enemigos = grupo_enemigos
 
-        self.cooldown_curacion_base = 100
+        self.cooldown_curacion_base = 60  # Cura más rápido al llegar
         self.cooldown_curacion = self.cooldown_curacion_base
-        self.radio_curacion = 250
-        self.cantidad_curacion = 3
-        self.distancia_huida = 300
+        
+        self.distancia_para_curar = 40  # Tiene que acercarse mucho (casi tocarlo)
+        self.cantidad_curacion = 5      # Cura un poco más
+        self.distancia_huida = 250
 
         self.y_objetivo = random.randint(100, 220)
         self.en_posicion = False
+        
+        # Nuevo estado: A quién está yendo a curar
+        self.paciente_objetivo = None
+
+    def buscar_paciente(self):
+        """Busca al enemigo aliado que haya perdido más vida."""
+        mejor_candidato = None
+        mayor_deficit = 0
+
+        for enemigo in self.grupo_enemigos:
+            # Evita curarse a sí mismo o a entidades sin vida
+            if enemigo is self or not hasattr(enemigo, "vidas") or not hasattr(enemigo, "vidas_max"):
+                continue
+
+            # Si el enemigo perdió vida, evaluamos qué tan grave es
+            if enemigo.vidas < enemigo.vidas_max:
+                deficit = enemigo.vidas_max - enemigo.vidas
+                if deficit > mayor_deficit:
+                    mayor_deficit = deficit
+                    mejor_candidato = enemigo
+
+        return mejor_candidato
 
     def update(self):
-        # Fase 1: bajar hasta la posición de trabajo
+        # Fase 1: bajar hasta la posición de trabajo inicial
         if not self.en_posicion:
             self.rect.y += self.velocidad
             if self.rect.y >= self.y_objetivo:
                 self.rect.y = self.y_objetivo
                 self.en_posicion = True
             self.mantener_en_pantalla()
-            return  # no cura ni huye hasta estar en posición
+            return 
 
-        # Fase 2: comportamiento normal (huir / curar)
-        dx = self.jugador.rect.centerx - self.rect.centerx
-        dy = self.jugador.rect.centery - self.rect.centery
-        distancia = max(1, math.hypot(dx, dy))
+        if self.cooldown_curacion > 0:
+            self.cooldown_curacion -= 1
 
-        if distancia < self.distancia_huida:
-            self.rect.x -= self.velocidad * dx / distancia
-            self.rect.y -= self.velocidad * dy / distancia
+        # Verificamos si el paciente que iba a curar acaba de morir o ya se curó por otra cosa
+        if self.paciente_objetivo:
+            if self.paciente_objetivo not in self.grupo_enemigos or self.paciente_objetivo.vidas >= self.paciente_objetivo.vidas_max:
+                self.paciente_objetivo = None  # Soltamos el objetivo para buscar uno nuevo
+        
+        # Si no tiene a nadie a quien curar, escanea el mapa
+        if not self.paciente_objetivo:
+            self.paciente_objetivo = self.buscar_paciente()
+
+        # Fase 2: Lógica de movimiento y curación
+        if self.paciente_objetivo:
+            # Perseguir al paciente
+            dx = self.paciente_objetivo.rect.centerx - self.rect.centerx
+            dy = self.paciente_objetivo.rect.centery - self.rect.centery
+            distancia = max(1, math.hypot(dx, dy))
+
+            if distancia > self.distancia_para_curar:
+                # Nos movemos a toda velocidad hacia el herido
+                self.rect.x += self.velocidad * dx / distancia
+                self.rect.y += self.velocidad * dy / distancia
+            else:
+                # Ya llegó al lado del herido, lo cura
+                if self.cooldown_curacion <= 0:
+                    self.curar(self.paciente_objetivo)
+
+        else:
+            # Si nadie necesita cura, el healer intenta huir del jugador
+            dx_jug = self.jugador.rect.centerx - self.rect.centerx
+            dy_jug = self.jugador.rect.centery - self.rect.centery
+            distancia_jug = max(1, math.hypot(dx_jug, dy_jug))
+
+            if distancia_jug < self.distancia_huida:
+                self.rect.x -= self.velocidad * dx_jug / distancia_jug
+                self.rect.y -= self.velocidad * dy_jug / distancia_jug
 
         self.mantener_en_pantalla()
 
-        if self.cooldown_curacion == 0:
-            self.curar_aliado_cercano()
-            self.cooldown_curacion = self.cooldown_curacion_base
-        else:
-            self.cooldown_curacion -= 1
-
-    def curar_aliado_cercano(self):
-        mejor_candidato = None
-        mayor_deficit = 0
-
-        for enemigo in self.grupo_enemigos:
-            if enemigo is self or not hasattr(enemigo, "vidas") or not hasattr(enemigo, "vidas_max"):
-                continue
-
-            if enemigo.vidas >= enemigo.vidas_max:
-                continue  # ya está a full vida, no hace falta curarlo
-
-            dx = enemigo.rect.centerx - self.rect.centerx
-            dy = enemigo.rect.centery - self.rect.centery
-            distancia = math.hypot(dx, dy)
-
-            if distancia > self.radio_curacion:
-                continue
-
-            deficit = enemigo.vidas_max - enemigo.vidas
-            if deficit > mayor_deficit:
-                mayor_deficit = deficit
-                mejor_candidato = enemigo
-
-        if mejor_candidato:
-            mejor_candidato.vidas = min(
-                mejor_candidato.vidas_max,
-                mejor_candidato.vidas + self.cantidad_curacion
-            )
-            print(f"Healer curó a un enemigo. Vidas: {mejor_candidato.vidas}/{mejor_candidato.vidas_max}")
-
+    def curar(self, paciente):
+        paciente.vidas = min(paciente.vidas_max, paciente.vidas + self.cantidad_curacion)
+        print(f"Médico curó a un aliado. Vidas: {paciente.vidas}/{paciente.vidas_max}")
+        
+        # Resetea cooldown y suelta a este paciente para ir a buscar al siguiente
+        self.cooldown_curacion = self.cooldown_curacion_base
+        self.paciente_objetivo = None
 
 class ProyectilEnemigo(pygame.sprite.Sprite):
     def __init__(self, posicion, direccion_x, direccion_y, jugador_obj, recursos_dict, sigue_jugador=False, velocidad=4):
